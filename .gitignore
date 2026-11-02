@@ -1,0 +1,13 @@
+input/*
+!input/.gitkeep
+output/*
+!output/.gitkeep
+character-reference/*
+!character-reference/.gitkeep
+jobs/*.json
+!jobs/.gitkeep
+*.mp4
+*.png
+*.jpg
+*.jpeg
+.DS_Store

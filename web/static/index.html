@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aff Video Tool — Web Studio</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>🎬 Aff Video Tool</h1>
+  <p>Quản lý video sản phẩm affiliate — dọc 9:16, TikTok và Facebook Reels.</p>
+  <p class="small">Server chỉ chạy trên máy của bạn (127.0.0.1). Không đăng nhập, không gửi cookie hay key ra ngoài.</p>
+</header>
+
+<nav>
+  <button data-tab="overview" class="active">Tổng quan</button>
+  <button data-tab="create">Tạo video</button>
+  <button data-tab="character">Nhân vật</button>
+  <button data-tab="results">Kết quả</button>
+</nav>
+
+<section id="overview" class="tab active">
+  <h2>Tổng quan</h2>
+  <div id="stats" class="cards"></div>
+  <h3>Quy tắc bắt buộc</h3>
+  <ul>
+    <li>Giữ nguyên tuyệt đối hình ảnh sản phẩm: màu, kiểu dáng, cổ áo, vị trí và hình dạng logo.</li>
+    <li>Không phụ đề, không chữ trong video, không lời thoại — trừ khi bạn dặn cụ thể.</li>
+    <li>Trong một video, chỉ dùng một nhân vật duy nhất xuyên suốt các cảnh.</li>
+    <li>Thể loại chính: quần áo bộ trẻ em đời thường.</li>
+  </ul>
+</section>
+
+<section id="create" class="tab">
+  <h2>Tạo video</h2>
+  <p>Điền sản phẩm và chọn prompt, bấm tạo job. Sau đó copy prompt của job đó
+     vào chat với Muse, kèm ảnh sản phẩm và ảnh nhân vật, để tạo video.
+     Video xong thì bỏ file vào thư mục <code>output/</code>, rồi bấm “Đã xong”.</p>
+  <form id="job-form">
+    <label>Tên sản phẩm
+      <input name="product" required placeholder="Ví dụ: Bộ polo trắng cổ nâu, logo on">
+    </label>
+    <label>Chi tiết sản phẩm (cổ áo, logo, quần, chất liệu)
+      <textarea name="details" rows="3" placeholder="Áo polo trắng, cổ nâu xám, 1 khuy, logo on nâu vàng ở ngực trái, quần short trắng lưng thun..."></textarea>
+    </label>
+    <label>Chọn prompt
+      <select name="prompt" id="prompt-select" required></select>
+    </label>
+    <label>Ghi chú
+      <input name="notes" placeholder="Ví dụ: làm bộ 3, random bối cảnh khác nhau">
+    </label>
+    <button type="submit">Tạo job</button>
+  </form>
+  <h3>Danh sách job</h3>
+  <div id="jobs"></div>
+</section>
+
+<section id="character" class="tab">
+  <h2>Nhân vật</h2>
+  <p>Để đồng nhất nhân vật cho một kênh, bỏ 1 ảnh nhân vật chuẩn vào thư mục
+     <code>character-reference/</code>. Mọi video sau đó của kênh đó đều dùng
+     đúng ảnh đó, kèm với ảnh sản phẩm của video đó.</p>
+  <p>Nếu chưa có ảnh nhân vật, tạo cảnh đầu tiên rồi trích một khung hình rõ mặt
+     làm ảnh nhân vật chuẩn, sau đó dùng ảnh đó cho mọi cảnh sau.</p>
+  <h3>Ảnh nhân vật hiện có</h3>
+  <div id="characters"></div>
+</section>
+
+<section id="results" class="tab">
+  <h2>Kết quả</h2>
+  <p>Các video trong thư mục <code>output/</code>. Bấm phát để xem trước,
+     rồi tải về đăng TikTok hoặc Facebook kèm link affiliate.</p>
+  <div id="outputs"></div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>
