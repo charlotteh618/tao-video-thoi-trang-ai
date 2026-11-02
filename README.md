@@ -40,12 +40,13 @@ Các tab trong giao diện:
 
 - **Tổng quan** — số prompt, số job, số job đã xong, số video kết quả,
   số ảnh nhân vật, và quy tắc bắt buộc.
-- **Tạo video** — điền tên sản phẩm, chi tiết sản phẩm, chọn prompt,
-  tạo job. Sau đó copy prompt của job đó vào chat với Muse, kèm ảnh sản phẩm
-  và ảnh nhân vật, để tạo video. Video xong thì bỏ file vào `output/`,
-  rồi bấm “Đã xong” cho job đó.
-- **Nhân vật** — hướng dẫn và danh sách ảnh nhân vật chuẩn trong
-  `character-reference/`.
+- **Tạo video** — tải ảnh sản phẩm lên ngay trên giao diện (khung tải ảnh,
+  kéo thả được, lưu vào `input/`), bấm vào ảnh để chọn cho job, rồi điền tên
+  sản phẩm, chi tiết sản phẩm, chọn prompt, tạo job. Sau đó copy prompt của
+  job đó vào chat với Muse, kèm ảnh sản phẩm và ảnh nhân vật, để tạo video.
+  Video xong thì bỏ file vào `output/`, rồi bấm “Đã xong” cho job đó.
+- **Nhân vật** — tải ảnh nhân vật chuẩn lên ngay trên giao diện (lưu vào
+  `character-reference/`), xem trước và xoá ảnh ngay tại đó.
 - **Kết quả** — xem trước và tải video trong `output/`.
 
 Lưu ý: giao diện này quản lý job, prompt và kết quả. Nó không tự tạo video
@@ -54,9 +55,10 @@ Video vẫn được tạo trong chat với Muse, rồi bạn lưu vào `output/
 
 ## Cách dùng
 
-1. Bỏ ảnh sản phẩm vào `input/`, ví dụ `input/product.png`.
-2. Bỏ ảnh nhân vật chuẩn của kênh vào `character-reference/`,
-   ví dụ `character-reference/character.png`.
+1. Tải ảnh sản phẩm lên ngay trên tab Tạo video (hoặc bỏ file vào `input/`,
+   ví dụ `input/product.png`).
+2. Tải ảnh nhân vật chuẩn của kênh lên ngay trên tab Nhân vật (hoặc bỏ file
+   vào `character-reference/`, ví dụ `character-reference/character.png`).
    Nếu chưa có ảnh nhân vật, tạo cảnh đầu tiên rồi trích một khung hình
    rõ mặt làm ảnh nhân vật chuẩn, sau đó dùng ảnh đó cho mọi cảnh sau.
 3. Chọn một prompt trong `prompts/`, thay đúng tên sản phẩm, cổ áo,

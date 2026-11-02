@@ -53,6 +53,26 @@ def _write_jobs(jobs):
     )
 
 
+IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
+IMAGE_TYPES = {
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".webp": "image/webp",
+}
+
+
+def _safe_name(name):
+    """Chi giu ten file anh hop le, chan duong dan ra ngoai thu muc."""
+    base = Path(str(name or "")).name.strip()
+    safe = "".join(c for c in base if c.isalnum() or c in ("-", "_", "."))
+    if not safe or safe.startswith("."):
+        return ""
+    if Path(safe).suffix.lower() not in IMAGE_SUFFIXES:
+        return ""
+    return safe
+
+
 def _read_prompt(name):
     # Chi doc file trong prompts/, khong cho duong dan ra ngoai.
     safe = Path(name).name
@@ -101,6 +121,7 @@ class Handler(SimpleHTTPRequestHandler):
                     "jobs": len(jobs),
                     "jobs_done": sum(1 for j in jobs if j.get("status") == "done"),
                     "outputs": len(_list_files("output", {".mp4"})),
+                    "products": len(_list_files("input", IMAGE_SUFFIXES)),
                     "characters": len(
                         _list_files(
                             "character-reference",
@@ -124,11 +145,21 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/outputs":
             return self._send_json(_list_files("output", {".mp4"}))
         if path == "/api/character":
-            return self._send_json(
-                _list_files(
-                    "character-reference", {".png", ".jpg", ".jpeg", ".webp"}
-                )
-            )
+            return self._send_json(_list_files("character-reference", IMAGE_SUFFIXES))
+        if path == "/api/products":
+            return self._send_json(_list_files("input", IMAGE_SUFFIXES))
+        if path.startswith("/input/"):
+            name = _safe_name(unquote(path[len("/input/"):]))
+            target = ROOT / "input" / name if name else None
+            if target and target.exists():
+                return self._send_file(target, IMAGE_TYPES[target.suffix.lower()])
+            return self._send_json({"error": "not found"}, status=404)
+        if path.startswith("/character/"):
+            name = _safe_name(unquote(path[len("/character/"):]))
+            target = ROOT / "character-reference" / name if name else None
+            if target and target.exists():
+                return self._send_file(target, IMAGE_TYPES[target.suffix.lower()])
+            return self._send_json({"error": "not found"}, status=404)
         if path.startswith("/output/"):
             name = Path(unquote(path[len("/output/"):])).name
             target = ROOT / "output" / name
@@ -148,12 +179,49 @@ class Handler(SimpleHTTPRequestHandler):
         except ValueError:
             body = {}
 
+        if path == "/api/uploads":
+            import base64
+
+            kind = str(body.get("kind") or "")
+            folder = {"product": "input", "character": "character-reference"}.get(kind)
+            name = _safe_name(body.get("name"))
+            raw_data = str(body.get("data") or "")
+            if "," in raw_data:
+                raw_data = raw_data.split(",", 1)[1]
+            if not folder or not name:
+                return self._send_json(
+                    {"error": "Thieu loai anh hoac ten file khong hop le (png/jpg/webp)"},
+                    status=400,
+                )
+            try:
+                content = base64.b64decode(raw_data, validate=True)
+            except (ValueError, Exception):
+                return self._send_json({"error": "Anh khong dung dinh dang"}, status=400)
+            if not content or len(content) > 12 * 1024 * 1024:
+                return self._send_json(
+                    {"error": "Anh qua lon (toi da 12 MB)"}, status=400
+                )
+            target_dir = ROOT / folder
+            target_dir.mkdir(parents=True, exist_ok=True)
+            target = target_dir / name
+            stem, suffix = target.stem, target.suffix
+            n = 2
+            while target.exists():
+                target = target_dir / f"{stem}-{n}{suffix}"
+                n += 1
+            target.write_bytes(content)
+            return self._send_json(
+                {"name": target.name, "size": len(content)}, status=201
+            )
+
         if path == "/api/jobs":
             jobs = _read_jobs()
             prompt_name = str(body.get("prompt") or "")
             job = {
                 "id": str(len(jobs) + 1),
                 "product": str(body.get("product") or "").strip(),
+                "product_image": _safe_name(body.get("product_image")),
+                "character_image": _safe_name(body.get("character_image")),
                 "details": str(body.get("details") or "").strip(),
                 "prompt": prompt_name,
                 "prompt_text": _read_prompt(prompt_name),
@@ -179,6 +247,18 @@ class Handler(SimpleHTTPRequestHandler):
                     return self._send_json(job)
             return self._send_json({"error": "not found"}, status=404)
 
+        return self._send_json({"error": "not found"}, status=404)
+
+    def do_DELETE(self):
+        parsed = urlparse(self.path)
+        parts = [p for p in parsed.path.split("/") if p]
+        if len(parts) == 3 and parts[0] == "api" and parts[1] in ("products", "characters"):
+            folder = "input" if parts[1] == "products" else "character-reference"
+            name = _safe_name(unquote(parts[2]))
+            target = ROOT / folder / name if name else None
+            if target and target.exists():
+                target.unlink()
+                return self._send_json({"deleted": name})
         return self._send_json({"error": "not found"}, status=404)
 
 
